@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="w3-card-4 w3-container w3-padding" style="width:90%; margin:auto; opacity:0.9;">
+    <!-- Navigation Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #2196F3; padding: 10px; color: white; background-color: #3c6445;">
+        <h3 style="margin: 0;">STUDENTLIST</h3>
+        <div>
+			<a href="/admin_dashboard" style="color: white; margin-right: 20px; text-decoration: none;">STUDENTLIST</a>
+            <a href="/viewattendance" style="color: white; margin-right: 20px; text-decoration: none;">VIEW ATTENDANCE</a>
+            <a href="/add" style="color: white; margin-right: 20px; text-decoration: none;">+ADD</a>
+            <a href="/logout" style="color: white; text-decoration: none;">LOGOUT</a>
+        </div>
+    </div>
+
+    <div class="w3-container w3-padding">
+        <h2 class="w3-center">Add Student</h2>
+        <!-- QR Code and Camera Feed -->
+        <div style="display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px;">
+            <!-- Camera Feed (on the left side) -->
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                <video id="video" width="300" height="300" autoplay></video>
+            </div>
+            <!-- Snapped Picture and QR Code (on the right side) -->
+            <div style="flex: 1; display: flex; gap: 20px; justify-content: center; align-items: center; height: 300px;">
+                <div>
+                    <img id="captured-image" width="280" height="225" style="display:none; margin-top: 5px;"/>
+                </div>
+                <div id="qr-code" style="width: 240px; height: 240px; margin-top: 5px;"></div>
+            </div>
+        </div>
+        
+            <!-- Form Section -->
+        <div style="display: flex; justify-content: space-between;">
+            <div style="flex: 1; margin-right: 10px;">
+                <form action="{{ url_for('add') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="image-path" name="image_path">
+                    <p>
+                        <label>IDNO</label>
+                        <input type="text" name="idno" id="idno" class="w3-input w3-border" required>
+                    </p>
+                    <p>
+                        <label>LASTNAME</label>
+                        <input type="text" name="lastname" id="lastname" class="w3-input w3-border" required>
+                    </p>
+                    <p>
+                        <label>FIRSTNAME</label>
+                        <input type="text" name="firstname" id="firstname" class="w3-input w3-border" required>
+                    </p>
+                   <p>
+						<label>COURSE</label>
+						<select name="course" id="course" class="w3-select w3-border" required>
+							<option value="" disabled selected>Select your course</option>
+							<option value="Computer Science">Computer Science</option>
+							<option value="Information Technology">Information Technology</option>
+							<option value="Engineering">Engineering</option>
+							<option value="Business Administration">Business Administration</option>
+							<option value="Nursing">Nursing</option>
+						</select>
+					</p>
+					<p>
+						<label>LEVEL</label>
+						<select name="level" id="level" class="w3-select w3-border" required>
+							<option value="" disabled selected>Select your level</option>
+							<option value="1st Year">1st Year</option>
+							<option value="2nd Year">2nd Year</option>
+							<option value="3rd Year">3rd Year</option>
+							<option value="4th Year">4th Year</option>
+						</select>
+					</p>
+                    <p>
+						<input type="hidden" id="image-data" name="image_path">
+                        <button type="button" id="take-picture" class="w3-button w3-blue" onclick="handleSnap(event)" onclick="captureImage()">SNAP</button>
+                    </p>
+                </form>
+            </div>
+            <!-- Display Section -->
+            <div style="flex: 1; margin-left: 10px;">
+			<form action="{{ url_for('add') }}" method="post" enctype="multipart/form-data">
+
+    <p>
+        <label>IDNO: </label><span id="idno-display"></span>
+    </p>
+    <p>
+        <label>LASTNAME: </label><span id="lastname-display"></span>
+    </p>
+    <p>
+        <label>FIRSTNAME: </label><span id="firstname-display"></span>
+    </p>
+    <p>
+        <label>COURSE: </label><span id="course-display"></span>
+    </p>
+    <p>
+        <label>LEVEL: </label><span id="level-display"></span>
+    </p>
+    <p>
+        <button type="button" class="w3-button w3-blue w3-small" style="padding: 10px 20px; margin-top: 10px;" onclick="saveForm()">SAVE</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="w3-button w3-red w3-small" style="padding: 10px 20px; margin-top: 10px;">CANCEL</a>
+    </p>
+</div>
+</form>
+        </div>
+    </div>
+</div>
+
+<!-- Camera and QR Code Script -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+function captureImage() {
+    var video = document.getElementById('video');
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    var imageData = canvas.toDataURL('image/png');  // Base64 string of the image
+
+    // Set the captured image data in the hidden input field
+    document.getElementById('image-path').value = imageData;
+
+    // Display the captured image
+    var capturedImage = document.getElementById('captured-image');
+    capturedImage.src = imageData;
+    capturedImage.style.display = 'block';
+
+    // Display entered information and generate QR code (same as before)
+    document.getElementById('idno-display').innerText = document.getElementById('idno').value;
+    document.getElementById('lastname-display').innerText = document.getElementById('lastname').value;
+    document.getElementById('firstname-display').innerText = document.getElementById('firstname').value;
+    document.getElementById('course-display').innerText = document.getElementById('course').value;
+    document.getElementById('level-display').innerText = document.getElementById('level').value;
+
+    // Generate QR code (same as before)
+    var idno = document.getElementById('idno').value;
+    var qrCodeContainer = document.getElementById('qr-code');
+    qrCodeContainer.innerHTML = '';
+    QRCode.toCanvas(document.createElement('canvas'), idno, function (error, canvas) {
+        if (error) console.error(error);
+        qrCodeContainer.appendChild(canvas);
+    });
+
+    alert('Picture and QR code generated successfully!');
+}
+function validateFields() {
+    // Check if all fields are filled
+    var fields = ['idno', 'lastname', 'firstname', 'course', 'level'];
+    for (var i = 0; i < fields.length; i++) {
+        var field = document.getElementById(fields[i]);
+        if (field.value.trim() === '') {
+            alert('Please fill out all fields');
+            return false; // Validation failed
+        }
+    }
+    return true; // Validation passed
+}
+
+function handleSnap(event) {
+    if (validateFields()) {
+        captureImage(); // Call the function to capture the image and generate QR code
+    } else {
+        event.preventDefault(); // Prevent snapping if validation fails
+    }
+}
+
+function validateForm(event) {
+    // Check if all fields are filled
+    var fields = ['idno', 'lastname', 'firstname', 'course', 'level'];
+    var isValid = true;
+
+    for (var i = 0; i < fields.length; i++) {
+        var field = document.getElementById(fields[i]);
+        if (field.value.trim() === '') {
+            alert('Please fill out all fields');
+            isValid = false;
+            break;
+        }
+    }
+
+    if (!isValid) {
+        event.preventDefault(); // Prevent submission if there are validation errors
+    } else {
+        // Capture the image and proceed
+        captureImage();
+    }
+}
+function saveForm() {
+    // Ensure the form is valid
+    var form = document.querySelector('form');
+    form.submit();
+}
+// Ensure the camera is accessible
+navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+    var video = document.getElementById('video');
+    video.srcObject = stream;
+    video.play();
+}).catch(function(error) {
+    console.error('Error accessing camera:', error);
+    alert('Unable to access camera. Please check your camera permissions.');
+});
+
+function resizeImage(file, maxWidth, maxHeight, callback) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            callback(canvas.toDataURL("image/png"));
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Example usage
+document.getElementById("imageInput").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    resizeImage(file, 500, 500, function(resizedBase64) {
+        console.log("Resized image:", resizedBase64);
+        // Use the resized image (send it to the server)
+    });
+});
+
+const fileInput = document.getElementById('imageInput');
+fileInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file.size > 2 * 1024 * 1024) { // Limit to 2MB
+        alert("File size exceeds 2MB. Please upload a smaller file.");
+        return;
+    }
+    // Proceed with uploading
+});
+document.getElementById('fileUpload').addEventListener('change', function(event) {
+    var file = event.target.files[0];
+    if (file.size > 10485760) {  // 10MB limit
+        alert("File size exceeds the limit of 10MB.");
+        event.target.value = '';  // Clear the file input
+    }
+});
+</script>
+{% endblock %}

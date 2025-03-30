@@ -1,0 +1,46 @@
+CREATE TABLE students(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+idno TEXT NOT NULL,
+lastname TEXT NOT NULL,
+firstname TEXT NOT NULL,
+course TEXT NOT NULL,
+level TEXT NOT NULL,
+image_path TEXT NOT NULL,
+qr_path TEXT NOT NULL, 
+added_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE attendance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	student_id INTEGER NOT NULL,
+    idno TEXT,
+    lastname TEXT,
+    firstname TEXT,
+    course TEXT,
+    level TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name VARCHAR(100) NOT NULL,
+username VARCHAR(100) NOT NULL,
+password VARCHAR(100) NOT NULL
+);
+
+1|dennis|admin|user
+2|durano|hello|world
+3|alfa|bravo|hello123
+INSERT INTO users(id,name,username,password)
+VALUES
+(1,'dennis','admin','user'),
+(2,'durano','hello','world'),
+(3,'alfa','bravo','hello123');
+
+CREATE TABLE attendance(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+student_id INTEGER NOT NULL,
+timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
+added_at TEXT NOT NULL,
+FOREIGN KEY (student_id) REFERENCES students(id)
+);

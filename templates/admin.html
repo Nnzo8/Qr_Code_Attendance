@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w3-card-4 w3-container w3-padding" style="width:90%; margin:auto; opacity:0.9;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-{{ messages[0][0] }}">
+                    {{ messages[0][1] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <br>
+        <!-- Navigation Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #2196F3; padding: 10px; color: white;background-color: #3c6445;">
+            <h3 style="margin: 0;">STUDENTLIST</h3>
+            <div>
+                <a href="/admin_dashboard" style="color: white; margin-right: 20px; text-decoration: none;">STUDENTLIST</a>
+                <a href="/viewattendance" style="color: white; margin-right: 20px; text-decoration: none;">VIEW ATTENDANCE</a>
+                <a href="/add" style="color: white; margin-right: 20px; text-decoration: none;">+ADD</a>
+                <a href="/logout" style="color: white; text-decoration: none;">LOGOUT</a>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+<table class="w3-table w3-bordered w3-striped" style="margin-top: 20px; width: 100%;">
+    <thead>
+        <tr style="background-color: #3c6445; color: white;">
+            <th>IDNO</th>
+            <th>FIRSTNAME</th>
+            <th>LASTNAME</th>
+            <th>COURSE</th>
+            <th>LEVEL</th>
+            <th>ADDED AT</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.idno }}</td>
+            <td>{{ student.firstname }}</td>
+            <td>{{ student.lastname }}</td>
+            <td>{{ student.course }}</td>
+            <td>{{ student.level }}</td>
+            <td>{{ student.added_at }}</td>
+            <td class="actions">
+                <button class="view-btn" onclick='openViewModal({
+                    "idno": "{{ student.idno }}",
+                    "firstname": "{{ student.firstname }}",
+                    "lastname": "{{ student.lastname }}",
+                    "course": "{{ student.course }}",
+                    "level": "{{ student.level }}",
+                    "image_path": "{{ url_for('static', filename=student.image_path) }}",
+                    "qr_path": "{{ url_for('static', filename=student.qr_path) }}"
+                })'>View</button>
+                <button class="edit-btn" onclick='openEditModal({
+                    "idno": "{{ student.idno }}",
+                    "firstname": "{{ student.firstname }}",
+                    "lastname": "{{ student.lastname }}",
+                    "course": "{{ student.course }}",
+                    "level": "{{ student.level }}"
+                })'>Edit</button>
+                <button class="delete-btn" onclick='openDeleteModal({
+                    "idno": "{{ student.idno }}"
+                })'>Delete</button> 
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- View Student Details Modal -->
+<div id="viewModal" class="w3-modal" style="display: none;">
+    <div class="w3-modal-content w3-card-4 w3-center" style="width: 40%;">
+        <div class="w3-container">
+            <span onclick="closeModal()" class="w3-button w3-display-topright">&times;</span>
+            <h2>View Student Details</h2>
+            <div style="display: flex; justify-content: space-around; align-items: center; padding: 20px;">
+                <div>
+                    <!-- Display the student's photo -->
+                    <img id="student-photo" src="" alt="Student Photo" style="width: 100px; height: 100px;">
+                    <!-- Display the student's QR code -->
+                    <img id="student-qr" src="" alt="QR Code" style="width: 100px; height: 100px;">
+                </div>
+                <div style="text-align: left;">
+                    <p><strong>ID Number:</strong> <span id="student-idno">*</span></p>
+                    <p><strong>First Name:</strong> <span id="student-firstname">*</span></p>
+                    <p><strong>Last Name:</strong> <span id="student-lastname">*</span></p>
+                    <p><strong>Course:</strong> <span id="student-course">*</span></p>
+                    <p><strong>Level:</strong> <span id="student-level">*</span></p>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="w3-button w3-gray">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Edit Student Details Modal -->
+<div id="editModal" class="w3-modal" style="display: none;">
+    <div class="w3-modal-content w3-card-4 w3-center" style="width: 40%;">
+        <div class="w3-container">
+            <span onclick="closeModal()" class="w3-button w3-display-topright">&times;</span>
+            <h2>Edit Student Details</h2>
+            <div style="padding: 20px;">
+                <form id="editForm" method="POST" action="/edit">
+                    <input type="hidden" name="idno" id="edit-student-idno">
+                    <p><label>First Name:</label>
+                        <input type="text" name="firstname" id="edit-student-firstname">
+                    </p>
+                    <p><label>Last Name:</label>
+                        <input type="text" name="lastname" id="edit-student-lastname">
+                    </p>
+                    <p><label>Course:</label>
+                        <input type="text" name="course" id="edit-student-course">
+                    </p>
+                    <p><label>Level:</label>
+                        <input type="text" name="level" id="edit-student-level">
+                    </p>
+                    <button type="submit" class="w3-button w3-green">Save</button>
+                    <button type="button" class="w3-button w3-gray" onclick="closeModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+		
+        <div id="deleteModal" class="w3-modal" style="display: none;">
+    <div class="w3-modal-content w3-card-4 w3-center" style="width: 25%; height: 25%;">
+        <div class="w3-container">
+            <span onclick="closeModal()" class="w3-button w3-display-topright">&times;</span>
+            <p style="text-align: center; padding: 50px;">Are you sure you want to delete this record?</p>
+            <form id="deleteForm" method="POST" action="/delete">
+                <input type="hidden" name="idno" id="delete-student-idno">
+                <button type="submit" class="w3-button w3-red">Yes, Delete</button>
+                <button type="button" class="w3-button w3-gray" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </div>
+<script>
+function openViewModal(student) { 
+document.getElementById('student-idno').innerText = student.idno;
+document.getElementById('student-firstname').innerText = student.firstname; 
+document.getElementById('student-lastname').innerText = student.lastname; 
+document.getElementById('student-course').innerText = student.course; 
+document.getElementById('student-level').innerText = student.level; 
+document.getElementById('student-photo').src = student.image_path || 'uploads/.png'; 
+document.getElementById('student-qr').src = student.qr_path || 'uploads/.png'; 
+document.getElementById('viewModal').style.display = 'block'; }
+
+
+
+function closeModal() {
+    document.getElementById('viewModal').style.display = 'none';
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+function openEditModal(student) {
+    document.getElementById('edit-student-idno').value = student.idno;
+    document.getElementById('edit-student-firstname').value = student.firstname;
+    document.getElementById('edit-student-lastname').value = student.lastname;
+    document.getElementById('edit-student-course').value = student.course;
+    document.getElementById('edit-student-level').value = student.level;
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function openDeleteModal(student) {
+    document.getElementById('delete-student-idno').value = student.idno;
+    document.getElementById('deleteModal').style.display = 'block';
+}
+
+</script>
+
+
+{% endblock %}

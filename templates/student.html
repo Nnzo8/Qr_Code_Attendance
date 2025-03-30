@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="scanner-container">
+    <div class="w3-card w3-white w3-round w3-padding w3-margin">
+        <h2>QR Code Scanner</h2>
+        <div id="reader"></div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div id="result" class="w3-card w3-white w3-round w3-padding w3-margin" style="display: none;">
+        <h3>Scanned Details:</h3>
+        <p><strong>ID:</strong> <span id="student-id">N/A</span></p>
+        <p><strong>Lastname:</strong> <span id="student-lastname">N/A</span></p>
+        <p><strong>FirstName:</strong> <span id="student-firstname">N/A</span></p>
+        <p><strong>Course:</strong> <span id="student-course">N/A</span></p>
+        <p><strong>Level:</strong> <span id="student-level">N/A</span></p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 10, qrbox: 250 });
+
+    function onScanSuccess(decodedText) {
+        console.log("QR Code scanned:", decodedText);  // Check the QR code data
+
+        fetch('/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: decodedText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Student not found!');
+            } else {
+                document.getElementById('student-id').textContent = data.id;
+                document.getElementById('student-lastname').textContent = data.lastname;
+                document.getElementById('student-firstname').textContent = data.firstname;
+                document.getElementById('student-course').textContent = data.course;
+                document.getElementById('student-level').textContent = data.level;
+
+                document.getElementById("result").style.display = "block";  // Show result
+
+                // Record attendance
+                fetch('/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: data.id,
+                        lastname: data.lastname,
+                        firstname: data.firstname,
+                        course: data.course,
+                        level: data.level
+                    })
+                })
+                .then(attendanceResponse => attendanceResponse.json())
+                .then(attendanceData => {
+                    if (attendanceData.error) {
+                        alert('Error: ' + attendanceData.error);
+                    } else {
+                        alert(attendanceData.message);  // Attendance recorded successfully!
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error recording attendance');
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error scanning QR code');
+        });
+    }
+
+    // Start scanning immediately
+    html5QrcodeScanner.render(onScanSuccess);
+});
+</script>
+{% endblock %}

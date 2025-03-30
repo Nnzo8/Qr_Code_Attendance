@@ -1,0 +1,48 @@
+{% extends 'student.html' %}
+
+{% block content %}
+<div class="w3-card-4 w3-container w3-padding" style="width:90%; margin:auto; opacity:0.9;">
+    <!-- Navigation Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #3c6445; padding: 10px; color: white;">
+        <h3 style="margin: 0;">VIEW ATTENDANCE</h3>
+        <div>
+            <a href="/admin_dashboard" style="color: white; margin-right: 20px; text-decoration: none;">STUDENT LIST</a>
+            <a href="/viewattendance" style="color: white; margin-right: 20px; text-decoration: none;">VIEW ATTENDANCE</a>
+            <a href="/add" style="color: white; margin-right: 20px; text-decoration: none;">+ADD</a>
+            <a href="/logout" style="color: white; text-decoration: none;">LOGOUT</a>
+        </div>
+    </div>
+
+    <h2>Attendance Records</h2>
+
+    <!-- Display all scanned student records -->
+    {% if scanned_students %}
+    <table class="w3-table-all w3-margin">
+        <thead>
+            <tr class="w3-light-grey">
+                <th>ID</th>
+                <th>Lastname</th>
+                <th>Firstname</th>
+                <th>Course</th>
+                <th>Level</th>
+                <th>Attendance Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in scanned_students %}
+            <tr>
+                <td>{{ student.id }}</td>
+                <td>{{ student.lastname }}</td>
+                <td>{{ student.firstname }}</td>
+                <td>{{ student.course }}</td>
+                <td>{{ student.level }}</td>
+                <td>{{ student.added_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No attendance records found.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.css') }}">
+	<script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Oswald:wght@200..700&display=swap');
+
+        body {
+            font-family: "Oswald", sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0; 
+        }
+
+        h1, h3 {
+            font-family: "Oswald", sans-serif;
+        }
+		.scanner-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content {
+            flex: 1; 
+        }
+
+        .footer {
+            background-color: #3c6445;
+            color: white;
+            padding: 10px;
+            text-align: center;
+			padding: 10px;
+			margin-top: auto;
+        }
+    </style>
+    <title>{% block title %}Student List v1.0{% endblock %}</title>
+</head>
+<body>
+    <div class="w3-bar w3-container w3-padding w3-center" style="color: white;background-color: #3c6445;">
+        <h1>{{ pagetitle }}</h1>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content w3-container w3-padding">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        &copy;copyright 2024 CATUBIG MARK DAVE C. <br>
+        &copy;copyright 2024 OCLIASA NIÑO ROLLANE D.
+    </div>
+</body>
+</html>

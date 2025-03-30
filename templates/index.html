@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="w3-card-4 w3-container w3-padding" style="width:50%; margin:auto; opacity:100;">
+        <form action="/admin" method="POST">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert alert-{{ messages[0][0] }}">
+                        {{ messages[0][1] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <p>
+                <label>USERNAME</label>
+                <input class="w3-input w3-animate-input" type="text" name="username" style="width:135px" required><br>
+            </p>
+            <p>
+                <label>PASSWORD</label>
+                <input class="w3-input w3-animate-input" type="password" name="password" style="width:135px" required><br>
+            </p>
+            <p>
+                <input type="submit" value="LOGIN" class="w3-button" style="background-color: #3C6445; color: white; border: none;">
+            </p>
+        </form>
+    </div>
+
+{% endblock %}
